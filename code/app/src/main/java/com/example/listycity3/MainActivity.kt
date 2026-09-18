@@ -29,8 +29,14 @@ class MainActivity : ComponentActivity() {
             ListyCity3Theme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     CityListScreen(
+                        // I asked Claude how to add the lambda (And the lambda parameters)
+                        // See README for conversation & Citation
                         cities = cityRepository.cities,
                         onAddCity = { cityRepository.addCity(it) },
+                        onUpdateCity = {
+                            old: City, new: City ->
+                            cityRepository.updateCity(old, new)
+                        },
                         modifier = Modifier.padding(innerPadding)
                     )
                 }

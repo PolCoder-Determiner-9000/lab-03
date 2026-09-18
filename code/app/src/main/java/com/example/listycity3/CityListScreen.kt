@@ -35,7 +35,7 @@ fun CityListScreen(
 ) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         itemsIndexed(cities) { index, city ->
-            CityRow(city = city)
+            // CityRow(city = city)
 
             if (index < cities.lastIndex) {
                 HorizontalDivider()
@@ -44,12 +44,19 @@ fun CityListScreen(
     }
 }
 
+// Claude provided Clickable functionality (I asked how to do it), 2026-09-17
+// See README for conversation & Citation
 @Composable
-fun CityRow(city: City) {
+fun CityRow(
+    city: City,
+    onCitySelected: (City) -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp, vertical = 16.dp)
+            // Allow clickable functionality for whole row instead of one text box
+            .clickable { onCitySelected(city) }
 
     ) {
         Text(
@@ -76,98 +83,111 @@ fun CityListScreenPreview() {
                 City("Vancouver", "BC"),
                 City("Calgary", "AB")
             ),
-            onAddCity = {}
+            onAddCity = {},
+            onUpdateCity = {old: City, new: City -> },
         )
     }
 }
-
 
 @Composable
 fun CityListScreen(
     cities: List<City>,
     onAddCity: (City) -> Unit,
+    onUpdateCity: (City, City) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
     var newCityName by remember { mutableStateOf("") }
     var newProvinceName by remember { mutableStateOf("") }
     var showAddCityFields by remember { mutableStateOf(false) }
-    var showEditCityFields by remember { mutableStateOf(false) }
     var selectedCity by remember { mutableStateOf<City?>(null) }
 
     Column(modifier = modifier.fillMaxSize()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
+            FloatingActionButton(
+                modifier = Modifier.padding(16.dp),
+                onClick = {
+                    showAddCityFields = !showAddCityFields
+                }
+            ) {
+                Text("+")
+            }
+        }
+
         if (showAddCityFields) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
             ) {
-                FloatingActionButton(
-                    modifier = Modifier.padding(16.dp),
-                    onClick = {
-                        showAddCityFields = !showAddCityFields
+                OutlinedTextField(
+                    value = newCityName,
+                    onValueChange = { newCityName = it },
+                    label = { Text("City") },
+                    modifier = Modifier.weight(1f)
+                )
+
+                Spacer(modifier = Modifier.width(8.dp))
+                OutlinedTextField(
+                    value = newProvinceName,
+                    onValueChange = { newProvinceName = it },
+                    label = { Text("Province") },
+                    modifier = Modifier.weight(1f)
+                )
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                if (selectedCity == null) {
+                    Button(
+                        modifier = Modifier.padding(vertical = 12.dp),
+                        onClick = {
+                            if (newCityName.isNotBlank() && newProvinceName.isNotBlank()) {
+                                onAddCity(
+                                    City(
+                                        name = newCityName,
+                                        province = newProvinceName
+                                    )
+                                )
+                                newCityName = ""
+                                newProvinceName = ""
+                                showAddCityFields = false
+                            }
+                        }
+                    ) {
+                        Text("Add City")
                     }
-                ) {
-                    Text("+")
+                } else {
+                    Button(
+                        modifier = Modifier.padding(vertical = 12.dp),
+                        onClick = {
+                            if (newCityName.isNotBlank() && newProvinceName.isNotBlank()) {
+                                val newCity = City(newCityName, newProvinceName)
+                                // !! since we checked nullity earlier as suggested by Claude; 2026-09-17
+                                // See README for conversation & Citation
+                                onUpdateCity(selectedCity!!, newCity)
+                                newCityName = ""
+                                newProvinceName = ""
+                                showAddCityFields = false
+                                selectedCity = null
+                            }
+                        }
+                    ) {
+                        Text("Update City")
+                    }
                 }
-            }
         }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            OutlinedTextField(
-                value = newCityName,
-                onValueChange = { newCityName = it },
-                label = { Text("City") },
-                modifier = Modifier.weight(1f)
-            )
-
-            Spacer(modifier = Modifier.width(8.dp))
-            OutlinedTextField(
-                value = newProvinceName,
-                onValueChange = { newProvinceName = it },
-                label = { Text("Province") },
-                modifier = Modifier.weight(1f)
-            )
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Button(
-                modifier = Modifier.padding(vertical = 12.dp),
-                onClick = {
-                    if (newCityName.isNotBlank() && newProvinceName.isNotBlank()) {
-                        onAddCity(
-                            City(
-                                name = newCityName,
-                                province = newProvinceName
-                            )
-                        )
-                        newCityName = ""
-                        newProvinceName = ""
-                        showAddCityFields = false
-                    }
-                }
-            ) {
-                Text("Add City")
-            }
-
-//            Button(
-//                modifier = Modifier.padding(vertical = 12.dp),
-//                onClick = {
-//                    if (true) {
-//
-//                    }
-//                }
-//            )
-
 
         }
 
-        LazyColumn {
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
             itemsIndexed(cities) { index, city ->
-                CityRow(city = city)
+                CityRow(
+                    city = city,
+                    onCitySelected = { selectedCity = it }
+                )
                 if (index < cities.lastIndex) {
                     HorizontalDivider()
                 }
@@ -177,3 +197,6 @@ fun CityListScreen(
     }
 
 }
+
+
+

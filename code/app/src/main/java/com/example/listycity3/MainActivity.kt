@@ -30,7 +30,7 @@ class MainActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     CityListScreen(
                         // I asked Claude how to add the lambda (And the lambda parameters)
-                        // See README for conversation & Citation
+                        // See README for conversation & Citation (Citation [1])
                         cities = cityRepository.cities,
                         onAddCity = { cityRepository.addCity(it) },
                         onUpdateCity = {

@@ -45,7 +45,7 @@ fun CityListScreen(
 }
 
 // Claude provided Clickable functionality (I asked how to do it), 2026-09-17
-// See README for conversation & Citation
+// See README for conversation & Citation (Citation [1])
 @Composable
 fun CityRow(
     city: City,
@@ -166,7 +166,7 @@ fun CityListScreen(
                             if (newCityName.isNotBlank() && newProvinceName.isNotBlank()) {
                                 val newCity = City(newCityName, newProvinceName)
                                 // !! since we checked nullity earlier as suggested by Claude; 2026-09-17
-                                // See README for conversation & Citation
+                                // See README for conversation & Citation (Citation [1])
                                 onUpdateCity(selectedCity!!, newCity)
                                 newCityName = ""
                                 newProvinceName = ""
